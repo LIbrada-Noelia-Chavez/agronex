@@ -19,3 +19,8 @@ Route::get('/cultivos', [CropController::class, 'index'])->name('cultivos.index'
 Route::get('/cultivos/{crop}', [CropController::class, 'show'])->name('cultivos.show');
 Route::get('/cultivos/create', [CropController::class, 'create'])->name('cultivos.create');
 Route::post('/cultivos', [CropController::class, 'store'])->name('cultivos.store');
+// Cultivos
+Route::resource('cultivos', App\Http\Controllers\CropController::class)->names('cultivos');
+
+// Ganado
+Route::resource('ganado', App\Http\Controllers\GanadoController::class)->names('ganado');

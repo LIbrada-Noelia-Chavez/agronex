@@ -2,48 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Crop;
-use App\Models\SensorReading;
+use Illuminate\Http\Request;
 
 class CropController extends Controller
 {
-    public function index()
-    {
-        $crops = Crop::orderBy('name')->get();
+    public function index() {
+        $crops = Crop::all();
         return view('crops.index', compact('crops'));
     }
 
-    public function show(Crop $crop)
-    {
-        // Lecturas recientes relacionadas (simulación: tomamos últimas lecturas de tipo soil_moisture)
-        $latestSoil = SensorReading::where('sensor_type', 'soil_moisture')
-                    ->orderBy('created_at', 'desc')
-                    ->limit(10)
-                    ->get();
-
-        return view('crops.show', compact('crop', 'latestSoil'));
-    }
-
-    public function create()
-    {
+    public function create() {
         return view('crops.create');
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'crop_type' => 'nullable|string|max:255',
-            'field_location' => 'nullable|string|max:255',
+            'name' => 'required|string',
+            'crop_type' => 'nullable|string',
+            'field_location' => 'nullable|string',
             'planted_at' => 'nullable|date',
-            'moisture_threshold' => 'nullable|integer|min:0|max:100',
-            'temp_min' => 'nullable|numeric',
-            'temp_max' => 'nullable|numeric',
+            'moisture_threshold' => 'nullable|integer',
+            'status' => 'nullable|string',
         ]);
-
         Crop::create($data);
+        return redirect()->route('cultivos.index')->with('success', 'Cultivo agregado correctamente.');
+    }
 
-        return redirect()->route('cultivos.index')->with('success','Cultivo agregado.');
+    public function edit(Crop $crop) {
+        return view('crops.edit', compact('crop'));
+    }
+
+    public function update(Request $request, Crop $crop) {
+        $crop->update($request->all());
+        return redirect()->route('cultivos.index')->with('success', 'Cultivo actualizado.');
+    }
+
+    public function destroy(Crop $crop) {
+        $crop->delete();
+        return redirect()->route('cultivos.index')->with('success', 'Cultivo eliminado.');
     }
 }

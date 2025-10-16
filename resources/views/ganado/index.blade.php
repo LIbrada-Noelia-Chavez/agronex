@@ -1,42 +1,36 @@
 @extends('layouts.app')
 
-@section('title', 'Gestión de Ganado')
-
 @section('content')
 <div class="container py-5">
-    <h1 class="text-success fw-bold mb-4">🐄 Gestión de Ganado</h1>
+    <h2 class="text-success">🐄 Lista de Ganado</h2>
+    <a href="{{ route('ganado.create') }}" class="btn btn-success mb-3">➕ Nuevo Animal</a>
 
-    <div class="d-flex justify-content-between mb-3">
-        <p class="text-muted">Controla tus animales, su raza, edad y estado de salud.</p>
-        <a href="#" class="btn btn-success">➕ Agregar Animal</a>
-    </div>
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-    <table class="table table-bordered shadow-sm">
-        <thead class="table-success">
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Raza</th>
-                <th>Edad</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
+    <table class="table table-striped">
+        <thead>
+            <tr><th>ID</th><th>Raza</th><th>Edad</th><th>Peso</th><th>Estado</th><th>Acciones</th></tr>
         </thead>
         <tbody>
+        @foreach($ganados as $g)
             <tr>
-                <td>1</td>
-                <td>Lola</td>
-                <td>Angus</td>
-                <td>3 años</td>
-                <td>Saludable</td>
+                <td>{{ $g->identificador }}</td>
+                <td>{{ $g->raza }}</td>
+                <td>{{ $g->edad }}</td>
+                <td>{{ $g->peso }}</td>
+                <td><span class="badge bg-{{ $g->estado == 'saludable' ? 'success' : 'warning' }}">{{ $g->estado }}</span></td>
                 <td>
-                    <a href="#" class="btn btn-sm btn-warning">✏️ Editar</a>
-                    <a href="#" class="btn btn-sm btn-danger">🗑️ Eliminar</a>
+                    <a href="{{ route('ganado.edit', $g) }}" class="btn btn-warning btn-sm">Editar</a>
+                    <form action="{{ route('ganado.destroy', $g) }}" method="POST" class="d-inline">
+                        @csrf @method('DELETE')
+                        <button class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
                 </td>
             </tr>
+        @endforeach
         </tbody>
     </table>
-
-    <a href="{{ route('dashboard') }}" class="btn btn-outline-success mt-3">⬅ Volver al Panel</a>
 </div>
 @endsection
