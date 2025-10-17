@@ -1,26 +1,87 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\GanadoController;
-use App\Http\Controllers\InventarioController;
-use App\Http\Controllers\SensorController;
-use App\Http\Controllers\CropController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
+/*
+|--------------------------------------------------------------------------
+| Rutas Web - AgroNex
+|--------------------------------------------------------------------------
+|
+| Este archivo contiene las rutas principales de la aplicación.
+| Incluye autenticación, dashboard y control de roles.
+|
+*/
 
-Route::get('/ganado', [GanadoController::class, 'index'])->name('ganado');
-Route::get('/inventario', [InventarioController::class, 'index'])->name('inventario');
-Route::get('/sensores', [SensorController::class, 'index'])->name('sensores');
+// =======================================================
+// 🔒 Redirigir la raíz al login
+// =======================================================
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 
-// RUTAS NUEVAS: Cultivos
-Route::get('/cultivos', [CropController::class, 'index'])->name('cultivos.index');
-Route::get('/cultivos/{crop}', [CropController::class, 'show'])->name('cultivos.show');
-Route::get('/cultivos/create', [CropController::class, 'create'])->name('cultivos.create');
-Route::post('/cultivos', [CropController::class, 'store'])->name('cultivos.store');
-// Cultivos
-Route::resource('cultivos', App\Http\Controllers\CropController::class)->names('cultivos');
+// =======================================================
+// 🔐 AUTENTICACIÓN MANUAL (Login / Logout)
+// =======================================================
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
 
-// Ganado
-Route::resource('ganado', App\Http\Controllers\GanadoController::class)->names('ganado');
+Route::post('/login', [LoginController::class, 'login'])->name('login.attempt');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// =======================================================
+// 🧩 REGISTRO (por si se usa formulario de register.blade.php)
+// =======================================================
+Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+Route::post('/register', [RegisteredUserController::class, 'store'])->name('register.store');
+
+// =======================================================
+// 🚧 RUTAS PROTEGIDAS (solo usuarios autenticados)
+// =======================================================
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    // 🏠 Dashboard (todos los usuarios autenticados)
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    // 👤 Perfil de usuario
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // ===================================================
+    // 🌱 Capataz de Cultivo
+    // ===================================================
+    Route::middleware(['role:capataz_cultivo,admin'])->group(function () {
+        Route::get('/cultivos', function () {
+            return view('cultivos.index');
+        })->name('cultivos.index');
+    });
+
+    // ===================================================
+    // 🐄 Capataz de Ganado
+    // ===================================================
+    Route::middleware(['role:capataz_ganado,admin'])->group(function () {
+        Route::get('/ganado', function () {
+            return view('ganado.index');
+        })->name('ganado.index');
+    });
+
+    // ===================================================
+    // ⚙️ Panel del Administrador
+    // ===================================================
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/admin', function () {
+            return view('admin.dashboard');
+        })->name('admin.dashboard');
+    });
+});
+
+// =======================================================
+// 📦 Importar las rutas por defecto de autenticación (Breeze / Fortify)
+// =======================================================
+require __DIR__ . '/auth.php';

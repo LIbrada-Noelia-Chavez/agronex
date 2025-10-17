@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Http;
+
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+
+class Kernel extends HttpKernel
+{
+    /**
+     * 🔹 Middleware globales del sistema.
+     * Se ejecutan en cada petición a la aplicación.
+     *
+     * @var array<int, class-string|string>
+     */
+    protected $middleware = [
+        // \App\Http\Middleware\TrustHosts::class,
+        \App\Http\Middleware\TrustProxies::class,
+        \Illuminate\Http\Middleware\HandleCors::class,
+        \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        \App\Http\Middleware\TrimStrings::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+    ];
+
+    /**
+     * 🔹 Grupos de middleware para distintas capas de la aplicación.
+     *
+     * @var array<string, array<int, class-string|string>>
+     */
+    protected $middlewareGroups = [
+        'web' => [
+            \App\Http\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            // \Illuminate\Session\Middleware\AuthenticateSession::class, // opcional
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+
+        'api' => [
+            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'throttle:api', // ✅ forma correcta y limpia
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+    ];
+
+    /**
+     * 🔹 Alias de middleware (pueden usarse directamente en las rutas).
+     *
+     * @var array<string, class-string|string>
+     */
+    protected $middlewareAliases = [
+        // Autenticación y autorización
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
+
+        // Roles, permisos y verificación
+        'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+
+        // Seguridad
+        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+        'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+
+        // 🧩 Middleware personalizado para control de roles
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
+    ];
+}
