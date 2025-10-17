@@ -16,7 +16,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="{{ route('ganado') }}">🐄 Ganado</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('ganado.index') }}">🐄 Ganado</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('inventario') }}">📦 Inventario</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('sensores') }}">🌡️ Sensores</a></li>
                 </ul>
@@ -35,7 +35,7 @@
                     <div class="card-body">
                         <h5 class="card-title">🐄 Ganado</h5>
                         <p class="card-text text-muted">Gestiona los animales, su salud y producción.</p>
-                        <a href="{{ route('ganado') }}" class="btn btn-success">Ir a Ganado</a>
+                        <a href="{{ route('ganado.index') }}" class="btn btn-success">Ir a Ganado</a>
                     </div>
                 </div>
             </div>
@@ -62,6 +62,43 @@
                 </div>
             </div>
         </div>
+
+        <!-- Bloque resumen de Cultivos -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h3 class="text-success">🌱 Cultivos</h3>
+            </div>
+
+            @php
+                $crops = \App\Models\Crop::orderBy('name')->limit(4)->get();
+            @endphp
+
+            @foreach($crops as $c)
+            <div class="col-md-3">
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ $c->name }}</h5>
+                        <p class="mb-1 text-muted">{{ $c->crop_type }} — {{ $c->field_location }}</p>
+                        <p class="mb-1">
+                            Estado:
+                            @if($c->status === 'healthy')
+                                <span class="badge bg-success">Saludable</span>
+                            @elseif($c->status === 'needs_irrigation')
+                                <span class="badge bg-warning text-dark">Necesita riego</span>
+                            @else
+                                <span class="badge bg-danger">Atención</span>
+                            @endif
+                        </p>
+                        <a href="{{ route('cultivos.show', $c->id) }}" class="btn btn-outline-success btn-sm">Ver</a>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+
+            <div class="col-md-12 text-end">
+                <a href="{{ route('cultivos.index') }}" class="btn btn-success">Ver todos los cultivos</a>
+            </div>
+        </div>
     </div>
 
     <footer class="text-center text-muted mt-5 mb-3 small">
@@ -71,39 +108,3 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<!-- Bloque resumen de Cultivos -->
-<div class="row mt-4">
-    <div class="col-md-12">
-        <h3 class="text-success">🌱 Cultivos</h3>
-    </div>
-
-    @php
-        $crops = \App\Models\Crop::orderBy('name')->limit(4)->get();
-    @endphp
-
-    @foreach($crops as $c)
-    <div class="col-md-3">
-        <div class="card mb-3 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">{{ $c->name }}</h5>
-                <p class="mb-1 text-muted">{{ $c->crop_type }} — {{ $c->field_location }}</p>
-                <p class="mb-1">
-                    Estado:
-                    @if($c->status === 'healthy')
-                        <span class="badge bg-success">Saludable</span>
-                    @elseif($c->status === 'needs_irrigation')
-                        <span class="badge bg-warning text-dark">Necesita riego</span>
-                    @else
-                        <span class="badge bg-danger">Atención</span>
-                    @endif
-                </p>
-                <a href="{{ route('cultivos.show', $c->id) }}" class="btn btn-outline-success btn-sm">Ver</a>
-            </div>
-        </div>
-    </div>
-    @endforeach
-
-    <div class="col-md-12 text-end">
-        <a href="{{ route('cultivos.index') }}" class="btn btn-success">Ver todos los cultivos</a>
-    </div>
-</div>
