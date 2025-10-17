@@ -9,8 +9,10 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\SimulateSensors::class,
     ];
 
-    protected function schedule(Schedule $schedule)
-    {
-        // $schedule->command('simulate:sensors --count=5')->everyFiveMinutes();
-    }
+   protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule): void
+{
+    // cada 30 minutos (ajustá si querés)
+    $schedule->job(new \App\Jobs\FetchCropWeather())->everyThirtyMinutes();
+}
+
 }
